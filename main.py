@@ -2,9 +2,8 @@
 Main program for box packing optimization using evolutionary algorithm.
 """
 import random
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from optimizer import run_optimization, evaluate
+from visualizer import show_solution
 
 
 def generate_boxes(count, minWidth, maxWidth, minHeight, maxHeight):
@@ -12,41 +11,6 @@ def generate_boxes(count, minWidth, maxWidth, minHeight, maxHeight):
     return [(random.randint(minWidth, maxWidth), 
              random.randint(minHeight, maxHeight)) 
             for _ in range(count)]
-
-
-def visualize_solution(individual, boxes, mask, width, height):
-    """Visualize the best solution using matplotlib."""
-    # Evaluate to get placement
-    _, placement = evaluate(individual, mask, boxes, width, height)
-    
-    # Create figure
-    fig, ax = plt.subplots(figsize=(7, 7))
-    ax.set_xlim(0, width)
-    ax.set_ylim(0, height)
-    ax.set_xticks(range(width + 1))
-    ax.set_yticks(range(height + 1))
-    ax.grid(True)
-    ax.set_aspect('equal')
-    
-    # Draw masked areas
-    for i in range(height):
-        for j in range(width):
-            if mask[i][j] == 0:
-                rect = patches.Rectangle((j, height - i - 1), 1, 1, facecolor='lightgray')
-                ax.add_patch(rect)
-    
-    # Draw placed boxes
-    for boxId, idx, (x, y), (w, h) in placement:
-        color = [random.random() for _ in range(3)]
-        rect = patches.Rectangle((x, height - y - h), w, h, 
-                                 linewidth=1, edgecolor='black', facecolor=color)
-        ax.add_patch(rect)
-        ax.text(x + w / 2, height - y - h / 2, f"{boxId}", 
-               ha='center', va='center', fontsize=10, color='black')
-    
-    plt.title("Box Placement - Evolutionary Algorithm")
-    plt.tight_layout()
-    plt.show()
 
 
 if __name__ == "__main__":
@@ -112,5 +76,5 @@ if __name__ == "__main__":
     print(f"Execution time:   {result['executionTime']:.3f} seconds")
     print("=" * 50)
     
-    # Visualize best solution
-    visualize_solution(result['bestIndividual'], boxes, mask, gridWidth, gridHeight)
+    # Visualize best solution with PyQt
+    show_solution(bestPlacement, mask, gridWidth, gridHeight)
