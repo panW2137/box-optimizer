@@ -84,6 +84,7 @@ class GridWidget(QWidget):
 def show_solution(placement, mask, gridWidth, gridHeight):
     """
     Display the box packing solution in a PyQt window.
+    Returns the window object so it can be kept alive.
     
     Args:
         placement: List of (boxId, idx, (x, y), (w, h)) tuples
@@ -102,4 +103,4 @@ def show_solution(placement, mask, gridWidth, gridHeight):
     window.setCentralWidget(widget)
     
     window.show()
-    app.exec()
+    return window

@@ -1,9 +1,13 @@
 """
 Main program for box packing optimization using evolutionary algorithm.
+Orchestrates the application flow: Configuration -> Optimization -> Visualization.
 """
+import sys
 import random
+from PyQt6.QtWidgets import QApplication
 from optimizer import run_optimization, evaluate
 from visualizer import show_solution
+from gui import ParameterWindow
 
 
 def generate_boxes(count, minWidth, maxWidth, minHeight, maxHeight):
@@ -14,67 +18,75 @@ def generate_boxes(count, minWidth, maxWidth, minHeight, maxHeight):
 
 
 if __name__ == "__main__":
-    # Set random seed for reproducibility
-    random.seed(44)
+    # Initialize QApplication
+    app = QApplication(sys.argv)
     
-    # Grid configuration
-    gridWidth = 16
-    gridHeight = 16
+    # Show configuration dialog
+    configDialog = ParameterWindow()
     
-    # Box size constraints
-    minBoxWidth = 1
-    maxBoxWidth = 5
-    minBoxHeight = 1
-    maxBoxHeight = 5
-    
-    # Algorithm parameters
-    generations = 10
-    populationSize = 50
-    mutationRate = 0.5
-    boxCount = 150
-    
-    # Create mask (1 = available, 0 = blocked)
-    mask = [[1] * gridWidth for _ in range(gridHeight)]
-    
-    # Optional: Block some areas
-    # for i in range(7):
-    #     for j in range(8, gridWidth):
-    #         mask[i][j] = 0
-    
-    # Generate boxes
-    boxes = generate_boxes(boxCount, minBoxWidth, maxBoxWidth, 
-                          minBoxHeight, maxBoxHeight)
-    
-    print(f"Running optimization with {boxCount} boxes...")
-    print(f"Parameters: {generations} generations, population size {populationSize}, mutation rate {mutationRate}")
-    print()
-    
-    # Run optimization
-    result = run_optimization(boxes, mask, gridWidth, gridHeight, 
-                             generations, populationSize, mutationRate)
-    
-    # Evaluate best and worst individuals
-    bestScore, bestPlacement = evaluate(result['bestIndividual'], mask, boxes, gridWidth, gridHeight)
-    worstScore, _ = evaluate(result['worstIndividual'], mask, boxes, gridWidth, gridHeight)
-    
-    # Display statistics
-    print("=" * 50)
-    print("OPTIMIZATION RESULTS")
-    print("=" * 50)
-    print(f"First generation:")
-    print(f"  Best score:     {result['firstGenBestScore']} boxes placed")
-    print(f"  Worst score:    {result['firstGenWorstScore']} boxes placed")
-    print()
-    print(f"Final generation:")
-    print(f"  Best score:     {bestScore} boxes placed")
-    print(f"  Worst score:    {worstScore} boxes placed")
-    print()
-    print(f"Improvement:")
-    print(f"  Best:           +{bestScore - result['firstGenBestScore']} boxes")
-    print(f"  Worst:          +{worstScore - result['firstGenWorstScore']} boxes")
-    print()
-    print(f"Execution time:   {result['executionTime']:.3f} seconds")
-    print("=" * 50)
-    
-    # Visualize best solution with PyQt
-    show_solution(bestPlacement, mask, gridWidth, gridHeight)
+    if configDialog.exec():
+        # Configuration accepted - get parameters
+        params = configDialog.get_parameters()
+        
+        # Set random seed
+        random.seed(params['seed'])
+        
+        # Generate boxes
+        boxes = generate_boxes(params['boxCount'], 
+                             params['minBoxWidth'], params['maxBoxWidth'], 
+                             params['minBoxHeight'], params['maxBoxHeight'])
+        
+        # Console output
+        print("\n" + "=" * 60)
+        print("STARTING OPTIMIZATION")
+        print("=" * 60)
+        print(f"Random seed:        {params['seed']}")
+        print(f"Grid size:          {params['gridWidth']} x {params['gridHeight']}")
+        print(f"Box size range:     {params['minBoxWidth']}-{params['maxBoxWidth']} x {params['minBoxHeight']}-{params['maxBoxHeight']}")
+        print(f"Box count:          {params['boxCount']}")
+        print(f"Generations:        {params['generations']}")
+        print(f"Population size:    {params['populationSize']}")
+        print(f"Mutation rate:      {params['mutationRate']}")
+        print("=" * 60)
+        print()
+        
+        # Run optimization
+        result = run_optimization(boxes, params['mask'], 
+                                 params['gridWidth'], params['gridHeight'], 
+                                 params['generations'], params['populationSize'], 
+                                 params['mutationRate'])
+        
+        # Evaluate best and worst individuals
+        bestScore, bestPlacement = evaluate(result['bestIndividual'], params['mask'], boxes, params['gridWidth'], params['gridHeight'])
+        worstScore, _ = evaluate(result['worstIndividual'], params['mask'], boxes, params['gridWidth'], params['gridHeight'])
+        
+        # Display statistics in console
+        print("=" * 60)
+        print("OPTIMIZATION RESULTS")
+        print("=" * 60)
+        print(f"First generation:")
+        print(f"  Best score:     {result['firstGenBestScore']} boxes placed")
+        print(f"  Worst score:    {result['firstGenWorstScore']} boxes placed")
+        print()
+        print(f"Final generation:")
+        print(f"  Best score:     {bestScore} boxes placed")
+        print(f"  Worst score:    {worstScore} boxes placed")
+        print()
+        print(f"Improvement:")
+        print(f"  Best:           +{bestScore - result['firstGenBestScore']} boxes")
+        print(f"  Worst:          +{worstScore - result['firstGenWorstScore']} boxes")
+        print()
+        print(f"Execution time:   {result['executionTime']:.3f} seconds")
+        print("=" * 60)
+        
+        # Visualize best solution
+        # Store window reference to prevent garbage collection
+        window = show_solution(bestPlacement, params['mask'], params['gridWidth'], params['gridHeight'])
+        
+        # Start the event loop
+        sys.exit(app.exec())
+        
+    else:
+        # User cancelled configuration
+        print("Optimization cancelled.")
+        sys.exit(0)
