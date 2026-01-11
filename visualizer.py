@@ -7,9 +7,8 @@ from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow
 from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont
 
-
+#widget na którym można rysować
 class GridWidget(QWidget):
-    """Custom widget for drawing the grid and placed boxes."""
     
     def __init__(self, placement, mask, gridWidth, gridHeight, cellSize=40):
         super().__init__()
@@ -19,7 +18,7 @@ class GridWidget(QWidget):
         self.gridHeight = gridHeight
         self.cellSize = cellSize
         
-        # Generate random colors for each box
+        #generuj losowe kolory dla kazdego pudelka co sie udalo postawic
         self.boxColors = {}
         for boxId, _, _, _ in placement:
             self.boxColors[boxId] = QColor(
@@ -28,18 +27,18 @@ class GridWidget(QWidget):
                 random.randint(100, 255)
             )
         
-        # Set widget size
+        #rozmiar widgetu
         self.setMinimumSize(
             gridWidth * cellSize + 1,
             gridHeight * cellSize + 1
         )
     
+
     def paintEvent(self, event):
-        """Draw the grid, masked areas, and boxes."""
+        #painter rysuje sam na sobie
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
-        # Draw masked areas (white background)
+        #rysowanie maski na bialo
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor(255, 255, 255))
         for i in range(self.gridHeight):
@@ -49,9 +48,9 @@ class GridWidget(QWidget):
                     y = i * self.cellSize
                     painter.drawRect(x, y, self.cellSize, self.cellSize)
         
-        # Draw boxes
+        #rysuj pudelka
         for boxId, idx, (x, y), (w, h) in self.placement:
-            painter.setPen(QPen(Qt.GlobalColor.black, 2))
+
             painter.setBrush(self.boxColors[boxId])
             
             rectX = x * self.cellSize
@@ -61,7 +60,7 @@ class GridWidget(QWidget):
             
             painter.drawRect(rectX, rectY, rectW, rectH)
             
-            # Draw box number
+            #rysuj numery pudelek
             painter.setPen(Qt.GlobalColor.black)
             painter.setFont(QFont('Arial', 12, QFont.Weight.Bold))
             painter.drawText(
@@ -69,38 +68,19 @@ class GridWidget(QWidget):
                 Qt.AlignmentFlag.AlignCenter,
                 str(boxId)
             )
-        
-        # Draw grid lines
-        painter.setPen(QPen(Qt.GlobalColor.black, 1))
-        for i in range(self.gridHeight + 1):
-            y = i * self.cellSize
-            painter.drawLine(0, y, self.gridWidth * self.cellSize, y)
-        
-        for j in range(self.gridWidth + 1):
-            x = j * self.cellSize
-            painter.drawLine(x, 0, x, self.gridHeight * self.cellSize)
-
 
 def show_solution(placement, mask, gridWidth, gridHeight):
-    """
-    Display the box packing solution in a PyQt window.
-    Returns the window object so it can be kept alive.
-    
-    Args:
-        placement: List of (boxId, idx, (x, y), (w, h)) tuples
-        mask: 2D list indicating available positions (1 = available, 0 = blocked)
-        gridWidth: Grid width
-        gridHeight: Grid height
-    """
+    #tworzenie instancji aplikacji
     app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
     
+    #tworzenie okna
     window = QMainWindow()
-    window.setWindowTitle("Box Placement - Evolutionary Algorithm")
+    window.setWindowTitle("Box Placement")
     
+    #ustawienie widgetu na ten z gory
     widget = GridWidget(placement, mask, gridWidth, gridHeight)
     window.setCentralWidget(widget)
     
+    #pokazanie okna
     window.show()
     return window

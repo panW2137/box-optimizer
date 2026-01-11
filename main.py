@@ -1,7 +1,3 @@
-"""
-Main program for box packing optimization using evolutionary algorithm.
-Orchestrates the application flow: Configuration -> Optimization -> Visualization.
-"""
 import sys
 import random
 from PyQt6.QtWidgets import QApplication
@@ -11,35 +7,30 @@ from gui import ParameterWindow
 
 
 def generate_boxes(count, minWidth, maxWidth, minHeight, maxHeight):
-    """Generate a list of random boxes with specified size constraints."""
-    return [(random.randint(minWidth, maxWidth), 
-             random.randint(minHeight, maxHeight)) 
-            for _ in range(count)]
+    return [(random.randint(minWidth, maxWidth), random.randint(minHeight, maxHeight)) for _ in range(count)]
 
 
 if __name__ == "__main__":
-    # Initialize QApplication
+    #inicjalizuj aplikacje
     app = QApplication(sys.argv)
     
-    # Show configuration dialog
+    #inicjalizacja okna
     configDialog = ParameterWindow()
     
+    #odpal okno
+    #idz dalej, jak uzytkownik kliknie przycisk
     if configDialog.exec():
-        # Configuration accepted - get parameters
+        #pobieranie konfiguracji
         params = configDialog.get_parameters()
-        
-        # Set random seed
         random.seed(params['seed'])
         
-        # Generate boxes
-        boxes = generate_boxes(params['boxCount'], 
-                             params['minBoxWidth'], params['maxBoxWidth'], 
-                             params['minBoxHeight'], params['maxBoxHeight'])
+        #generowanie pudelek
+        boxes = generate_boxes(params['boxCount'], params['minBoxWidth'], params['maxBoxWidth'], params['minBoxHeight'], params['maxBoxHeight'])
         
-        # Console output
-        print("\n" + "=" * 60)
+        #informacje w konsoli
+        print("\n" + "============================================================")
         print("STARTING OPTIMIZATION")
-        print("=" * 60)
+        print("============================================================")
         print(f"Random seed:        {params['seed']}")
         print(f"Grid size:          {params['gridWidth']} x {params['gridHeight']}")
         print(f"Box size range:     {params['minBoxWidth']}-{params['maxBoxWidth']} x {params['minBoxHeight']}-{params['maxBoxHeight']}")
@@ -47,23 +38,20 @@ if __name__ == "__main__":
         print(f"Generations:        {params['generations']}")
         print(f"Population size:    {params['populationSize']}")
         print(f"Mutation rate:      {params['mutationRate']}")
-        print("=" * 60)
+        print("============================================================")
         print()
         
-        # Run optimization
-        result = run_optimization(boxes, params['mask'], 
-                                 params['gridWidth'], params['gridHeight'], 
-                                 params['generations'], params['populationSize'], 
-                                 params['mutationRate'])
+        #odpalaj optymalizacje Start the event loop
+        result = run_optimization(boxes, params['mask'], params['gridWidth'], params['gridHeight'], params['generations'], params['populationSize'], params['mutationRate'])
         
-        # Evaluate best and worst individuals
+        #oblicz najlepszego i najgorszego
         bestScore, bestPlacement = evaluate(result['bestIndividual'], params['mask'], boxes, params['gridWidth'], params['gridHeight'])
         worstScore, _ = evaluate(result['worstIndividual'], params['mask'], boxes, params['gridWidth'], params['gridHeight'])
         
-        # Display statistics in console
-        print("=" * 60)
+        #wyswietl wyniki w konsoli
+        print("============================================================")
         print("OPTIMIZATION RESULTS")
-        print("=" * 60)
+        print("============================================================")
         print(f"First generation:")
         print(f"  Best score:     {result['firstGenBestScore']} boxes placed")
         print(f"  Worst score:    {result['firstGenWorstScore']} boxes placed")
@@ -77,16 +65,15 @@ if __name__ == "__main__":
         print(f"  Worst:          +{worstScore - result['firstGenWorstScore']} boxes")
         print()
         print(f"Execution time:   {result['executionTime']:.3f} seconds")
-        print("=" * 60)
+        print("============================================================")
         
-        # Visualize best solution
-        # Store window reference to prevent garbage collection
+        #odpal wizualajzer
         window = show_solution(bestPlacement, params['mask'], params['gridWidth'], params['gridHeight'])
+        #jebany garbage collector
         
-        # Start the event loop
+        #oczekuj na zamkniecie
         sys.exit(app.exec())
         
-    else:
-        # User cancelled configuration
+    else: #wcisneli X
         print("Optimization cancelled.")
         sys.exit(0)
