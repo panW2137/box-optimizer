@@ -1,6 +1,3 @@
-"""
-PyQt6-based visualization for box packing solutions.
-"""
 import sys
 import random
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow
@@ -35,32 +32,37 @@ class GridWidget(QWidget):
     
 
     def paintEvent(self, event):
-        #painter rysuje sam na sobie
         painter = QPainter(self)
-        
-        #rysowanie maski na bialo
+
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(255, 255, 255))
+        painter.setBrush(QColor(60, 60, 60))
+        painter.drawRect(self.rect())
+
+        #komorki niedostepne na czarno
         for i in range(self.gridHeight):
             for j in range(self.gridWidth):
+                x = j * self.cellSize
+                y = i * self.cellSize
                 if self.mask[i][j] == 0:
-                    x = j * self.cellSize
-                    y = i * self.cellSize
+                    # ciemne, półprzezroczyste wypełnienie
+                    painter.setPen(Qt.PenStyle.NoPen)
+                    painter.setBrush(QColor(0,0,0))
                     painter.drawRect(x, y, self.cellSize, self.cellSize)
-        
-        #rysuj pudelka
-        for boxId, idx, (x, y), (w, h) in self.placement:
 
+
+        #rysuj pudelka
+        painter.setPen(Qt.PenStyle.NoPen)
+        for boxId, idx, (x, y), (w, h) in self.placement:
             painter.setBrush(self.boxColors[boxId])
-            
+
             rectX = x * self.cellSize
             rectY = y * self.cellSize
             rectW = w * self.cellSize
             rectH = h * self.cellSize
-            
+
             painter.drawRect(rectX, rectY, rectW, rectH)
-            
-            #rysuj numery pudelek
+
+            #numer pudelka
             painter.setPen(Qt.GlobalColor.black)
             painter.setFont(QFont('Arial', 12, QFont.Weight.Bold))
             painter.drawText(
@@ -68,6 +70,7 @@ class GridWidget(QWidget):
                 Qt.AlignmentFlag.AlignCenter,
                 str(boxId)
             )
+            painter.setPen(Qt.PenStyle.NoPen)
 
 def show_solution(placement, mask, gridWidth, gridHeight):
     #tworzenie instancji aplikacji
@@ -75,7 +78,7 @@ def show_solution(placement, mask, gridWidth, gridHeight):
     
     #tworzenie okna
     window = QMainWindow()
-    window.setWindowTitle("Box Placement")
+    window.setWindowTitle("Rozmieszczenie pudełek")
     
     #ustawienie widgetu na ten z gory
     widget = GridWidget(placement, mask, gridWidth, gridHeight)

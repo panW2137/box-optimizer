@@ -29,15 +29,15 @@ if __name__ == "__main__":
         
         #informacje w konsoli
         print("\n" + "============================================================")
-        print("STARTING OPTIMIZATION")
+        print("START OPTIMALIZACJI")
         print("============================================================")
-        print(f"Random seed:        {params['seed']}")
-        print(f"Grid size:          {params['gridWidth']} x {params['gridHeight']}")
-        print(f"Box size range:     {params['minBoxWidth']}-{params['maxBoxWidth']} x {params['minBoxHeight']}-{params['maxBoxHeight']}")
-        print(f"Box count:          {params['boxCount']}")
-        print(f"Generations:        {params['generations']}")
-        print(f"Population size:    {params['populationSize']}")
-        print(f"Mutation rate:      {params['mutationRate']}")
+        print(f"Seed: {params['seed']}")
+        print(f"Rozmiar siatki: {params['gridWidth']} x {params['gridHeight']}")
+        print(f"Ograniczenia rozmiaru pudełek: {params['minBoxWidth']}-{params['maxBoxWidth']} x {params['minBoxHeight']}-{params['maxBoxHeight']}")
+        print(f"Liczba pudełek: {params['boxCount']}")
+        print(f"Pokolenia: {params['generations']}")
+        print(f"Rozmiar populacji: {params['populationSize']}")
+        print(f"Współczynnik mutacji: {params['mutationRate']}")
         print("============================================================")
         print()
         
@@ -52,28 +52,28 @@ if __name__ == "__main__":
         print("============================================================")
         print("OPTIMIZATION RESULTS")
         print("============================================================")
-        print(f"First generation:")
-        print(f"  Best score:     {result['firstGenBestScore']} boxes placed")
-        print(f"  Worst score:    {result['firstGenWorstScore']} boxes placed")
+        print(f"Pierwsza generacja:")
+        print(f"  Najlepszy wynik:     {result['firstGenBestScore']} pudełek")
+        print(f"  Najgorszy wynik:    {result['firstGenWorstScore']} pudełek")
         print()
-        print(f"Final generation:")
-        print(f"  Best score:     {bestScore} boxes placed")
-        print(f"  Worst score:    {worstScore} boxes placed")
+        print(f"Końcowa generacja:")
+        print(f"  Najlepszy wynik:     {bestScore} pudełek")
+        print(f"  Najgorszy wynik:    {worstScore} pudełek")
         print()
-        print(f"Improvement:")
-        print(f"  Best:           +{bestScore - result['firstGenBestScore']} boxes")
-        print(f"  Worst:          +{worstScore - result['firstGenWorstScore']} boxes")
+        print(f"Poprawa:")
+        print(f"  Najlepszy:           +{bestScore - result['firstGenBestScore']} pudełek")
+        print(f"  Najgorszy:          +{worstScore - result['firstGenWorstScore']} pudełek")
         print()
         print(f"Execution time:   {result['executionTime']:.3f} seconds")
         print("============================================================")
         
         #odpal wizualajzer
         window = show_solution(bestPlacement, params['mask'], params['gridWidth'], params['gridHeight'])
-        #jebany garbage collector
+        #****** garbage collector
         
         #oczekuj na zamkniecie
         sys.exit(app.exec())
         
     else: #wcisneli X
-        print("Optimization cancelled.")
+        print("Optymalizacja przerwana.")
         sys.exit(0)

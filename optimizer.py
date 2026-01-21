@@ -24,15 +24,15 @@ def place(grid, x, y, w, h, boxId):
 
 
 def generate_individual(boxes):
-    indices = list(range(len(boxes)))
-    random.shuffle(indices)
-    return [(i, random.choice([True, False])) for i in indices]
+    indices = list(range(len(boxes))) # lista z indeksami pudelek
+    random.shuffle(indices) # losowe przemieszanie
+    return [(i, random.choice([True, False])) for i in indices] # losowany jest index wraz z rotacja
 
 
 def crossover(parent1, parent2):
-    cut = random.randint(1, len(parent1) - 1)
+    cut = random.randint(1, len(parent1) - 1) # punkt podzialu
     child1 = parent1[:cut] + [gene for gene in parent2 if gene[0] not in [g[0] for g in parent1[:cut]]]
-    child2 = parent2[:cut] + [gene for gene in parent1 if gene[0] not in [g[0] for g in parent2[:cut]]]
+    child2 = parent2[:cut] + [gene for gene in parent1 if gene[0] not in [g[0] for g in parent2[:cut]]] 
     return child1, child2
 
 
@@ -96,12 +96,12 @@ def run_optimization(boxes, mask, width, height, generations, populationSize, mu
             bestScore = scores[0][0]
             bestIndividual = scores[0][1]
         
-        if scores[populationSize - 1][0] < worstScore:
-            worstScore = scores[populationSize - 1][0]
+        if scores[-1][0] < worstScore:
+            worstScore = scores[-1][0]
         
         newPopulation = []
         while len(newPopulation) < populationSize:
-            parent1 = random.choice(scores[:10])[1]
+            parent1 = random.choice(scores[:10])[1] # bierzemy 10 najlepszych osobnikow i losujemy
             parent2 = random.choice(scores[:10])[1]
             child1, child2 = crossover(parent1, parent2)
             
